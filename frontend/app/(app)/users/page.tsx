@@ -4,11 +4,9 @@ import { useEffect, useState, useCallback } from 'react';
 import api from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { User } from '@/types';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -92,11 +90,11 @@ export default function UsersPage() {
   if (!isAdmin) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
-        <div className="p-4 rounded-full bg-amber-100 text-amber-600">
+        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.15)]">
           <ShieldAlert className="h-10 w-10" />
         </div>
-        <h2 className="text-xl font-bold">ไม่มีสิทธิ์เข้าถึงหน้านี้</h2>
-        <p className="text-muted-foreground max-w-md">
+        <h2 className="text-xl font-bold text-white">ไม่มีสิทธิ์เข้าถึงหน้านี้</h2>
+        <p className="text-slate-400 max-w-md text-sm">
           หน้านี้สงวนไว้สำหรับผู้ดูแลระบบ (ADMIN) เท่านั้น กรุณาติดต่อผู้ดูแลระบบหากต้องการสิทธิ์เพิ่มเติม
         </p>
       </div>
@@ -181,201 +179,206 @@ export default function UsersPage() {
       u.email.toLowerCase().includes(search.toLowerCase())
   );
 
+  const selectClass =
+    'flex h-9 w-full rounded-xl border border-blue-500/25 bg-[#0a101f]/90 px-3 py-1 text-sm text-slate-200 shadow-xs transition-colors focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20';
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 rounded-2xl bg-[#0e162b]/85 border border-blue-500/15 backdrop-blur-xl shadow-lg">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">จัดการผู้ใช้งานระบบ</h1>
-          <p className="text-muted-foreground">จัดการบัญชีผู้ใช้ สิทธิ์การเข้าถึง และสถานะการใช้งาน</p>
+          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
+            <span>จัดการผู้ใช้งานระบบ</span>
+            <span className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#00e5ff]" />
+          </h1>
+          <p className="text-xs text-slate-400 font-mono mt-0.5">
+            จัดการบัญชีผู้ใช้ สิทธิ์การเข้าถึง และสถานะการใช้งาน
+          </p>
         </div>
-        <Button
+        <button
           onClick={() => {
             setAddForm({ name: '', email: '', password: '', role: 'STAFF' });
             setAddModalOpen(true);
           }}
-          className="gap-2 shadow-sm"
+          className="px-5 py-2 rounded-full font-bold text-xs uppercase tracking-wider text-slate-950 bg-gradient-to-r from-cyan-400 via-sky-300 to-purple-400 shadow-[0_0_20px_rgba(0,212,255,0.45)] hover:shadow-[0_0_30px_rgba(0,212,255,0.7)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 cursor-pointer"
         >
-          <Plus className="h-4 w-4" />
-          เพิ่มผู้ใช้ใหม่
-        </Button>
+          <Plus className="w-3.5 h-3.5 text-slate-950" />
+          <span>เพิ่มผู้ใช้ใหม่</span>
+        </button>
       </div>
 
       {/* Mini Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2.5 rounded-lg bg-blue-50 text-blue-600">
+        <div className="p-5 rounded-2xl bg-[#0e162b]/80 border border-blue-500/15 backdrop-blur-xl hover:border-cyan-500/35 transition-all shadow-md">
+          <div className="flex items-center gap-4">
+            <div className="p-2.5 rounded-xl bg-cyan-500/15 border border-cyan-500/25 text-cyan-400 shadow-[0_0_10px_rgba(0,212,255,0.2)]">
               <Users className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">ผู้ใช้ทั้งหมด</p>
-              <p className="text-xl font-bold">{users.length} คน</p>
+              <p className="text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono">ผู้ใช้ทั้งหมด</p>
+              <p className="text-2xl font-extrabold text-white font-mono">{users.length} <span className="text-xs text-slate-400 font-normal">คน</span></p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2.5 rounded-lg bg-purple-50 text-purple-600">
+        <div className="p-5 rounded-2xl bg-[#0e162b]/80 border border-blue-500/15 backdrop-blur-xl hover:border-cyan-500/35 transition-all shadow-md">
+          <div className="flex items-center gap-4">
+            <div className="p-2.5 rounded-xl bg-purple-500/15 border border-purple-500/25 text-purple-400">
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">ผู้ดูแลระบบ (ADMIN)</p>
-              <p className="text-xl font-bold">
-                {users.filter((u) => u.role === 'ADMIN').length} คน
+              <p className="text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono">ADMIN</p>
+              <p className="text-2xl font-extrabold text-white font-mono">
+                {users.filter((u) => u.role === 'ADMIN').length} <span className="text-xs text-slate-400 font-normal">คน</span>
               </p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2.5 rounded-lg bg-emerald-50 text-emerald-600">
+        <div className="p-5 rounded-2xl bg-[#0e162b]/80 border border-blue-500/15 backdrop-blur-xl hover:border-cyan-500/35 transition-all shadow-md">
+          <div className="flex items-center gap-4">
+            <div className="p-2.5 rounded-xl bg-blue-500/15 border border-blue-500/25 text-blue-400">
               <UserCheck className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">พนักงาน (STAFF)</p>
-              <p className="text-xl font-bold">
-                {users.filter((u) => u.role === 'STAFF').length} คน
+              <p className="text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono">STAFF</p>
+              <p className="text-2xl font-extrabold text-white font-mono">
+                {users.filter((u) => u.role === 'STAFF').length} <span className="text-xs text-slate-400 font-normal">คน</span>
               </p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2.5 rounded-lg bg-green-50 text-green-600">
+        <div className="p-5 rounded-2xl bg-[#0e162b]/80 border border-blue-500/15 backdrop-blur-xl hover:border-cyan-500/35 transition-all shadow-md">
+          <div className="flex items-center gap-4">
+            <div className="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/25 text-emerald-400">
               <UserCheck className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">สถานะใช้งานปกติ</p>
-              <p className="text-xl font-bold">
-                {users.filter((u) => u.status === 'ACTIVE').length} คน
+              <p className="text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono">ใช้งานปกติ</p>
+              <p className="text-2xl font-extrabold text-white font-mono">
+                {users.filter((u) => u.status === 'ACTIVE').length} <span className="text-xs text-slate-400 font-normal">คน</span>
               </p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
       {/* Search Bar */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="ค้นหาชื่อ หรืออีเมล..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="p-4 rounded-2xl bg-[#0e162b]/80 border border-blue-500/15 backdrop-blur-xl">
+        <div className="relative">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="ค้นหาชื่อ หรืออีเมล..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#0a101f]/90 border border-blue-500/25 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+          />
+        </div>
+      </div>
 
       {/* Users Table */}
-      <Card className="overflow-hidden">
+      <div className="rounded-2xl bg-[#0e162b]/80 border border-blue-500/15 backdrop-blur-xl overflow-hidden shadow-md">
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="bg-muted/40">
-              <TableRow>
-                <TableHead>ผู้ใช้งาน</TableHead>
-                <TableHead>อีเมล</TableHead>
-                <TableHead className="text-center">บทบาท (Role)</TableHead>
-                <TableHead className="text-center">สถานะ (Status)</TableHead>
-                <TableHead className="text-center">จำนวนทำรายการสต๊อก</TableHead>
-                <TableHead>วันที่สร้าง</TableHead>
-                <TableHead className="text-center w-28">การจัดการ</TableHead>
+            <TableHeader>
+              <TableRow className="border-b border-blue-900/40 bg-[#0a101f]/90 hover:bg-[#0a101f]/90">
+                <TableHead className="text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono py-3">ผู้ใช้งาน</TableHead>
+                <TableHead className="text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono py-3">อีเมล</TableHead>
+                <TableHead className="text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono text-center py-3">บทบาท</TableHead>
+                <TableHead className="text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono text-center py-3">สถานะ</TableHead>
+                <TableHead className="text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono text-center py-3">จำนวนทำรายการ</TableHead>
+                <TableHead className="text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono py-3">วันที่สร้าง</TableHead>
+                <TableHead className="text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono text-center w-28 py-3">การจัดการ</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-36 text-center">
-                    <div className="flex flex-col items-center justify-center gap-2">
-                      <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-primary" />
-                      <span className="text-xs text-muted-foreground">กำลังโหลดข้อมูล...</span>
+                  <TableCell colSpan={7} className="h-36 text-center border-b border-blue-900/20">
+                    <div className="flex flex-col items-center justify-center gap-3">
+                      <div className="animate-spin rounded-full h-7 w-7 border-2 border-cyan-400 border-t-transparent shadow-[0_0_15px_#00e5ff]" />
+                      <span className="text-xs font-mono text-cyan-400 tracking-wider">LOADING DATA...</span>
                     </div>
                   </TableCell>
                 </TableRow>
               ) : filteredUsers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-36 text-center text-muted-foreground">
+                  <TableCell colSpan={7} className="h-36 text-center border-b border-blue-900/20">
                     <div className="flex flex-col items-center justify-center gap-2">
-                      <Users className="h-8 w-8 text-muted-foreground/50" />
-                      <span>ไม่พบข้อมูลผู้ใช้</span>
+                      <Users className="h-8 w-8 text-slate-600" />
+                      <span className="text-sm text-slate-500">ไม่พบข้อมูลผู้ใช้</span>
                     </div>
                   </TableCell>
                 </TableRow>
               ) : (
                 filteredUsers.map((u) => (
-                  <TableRow key={u.id} className="hover:bg-muted/40">
-                    <TableCell>
+                  <TableRow key={u.id} className="border-b border-blue-900/20 hover:bg-blue-500/5 transition-colors">
+                    <TableCell className="py-3">
                       <div className="flex items-center gap-2.5">
-                        <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
+                        <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-blue-600/60 to-cyan-500/60 border border-cyan-500/30 text-cyan-300 flex items-center justify-center text-xs font-bold">
                           {u.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <span className="font-semibold text-foreground">{u.name}</span>
+                          <span className="font-semibold text-slate-200">{u.name}</span>
                           {u.id === currentUser?.id && (
-                            <span className="ml-1.5 text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">
+                            <span className="ml-1.5 text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-1.5 py-0.5 rounded font-mono">
                               (คุณ)
                             </span>
                           )}
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-sm font-mono">
+                    <TableCell className="text-slate-400 text-sm font-mono py-3">
                       {u.email}
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="text-center py-3">
                       {u.role === 'ADMIN' ? (
-                        <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-200 border-purple-200">
-                          <Shield className="h-3 w-3 mr-1" />
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                          <Shield className="h-3 w-3" />
                           ADMIN
-                        </Badge>
+                        </span>
                       ) : (
-                        <Badge variant="secondary">STAFF</Badge>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-blue-500/15 text-blue-300 border border-blue-500/25">
+                          STAFF
+                        </span>
                       )}
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="text-center py-3">
                       {u.status === 'ACTIVE' ? (
-                        <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-emerald-200">
-                          <UserCheck className="h-3 w-3 mr-1" />
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                          <UserCheck className="h-3 w-3" />
                           เปิดใช้งาน
-                        </Badge>
+                        </span>
                       ) : (
-                        <Badge variant="destructive">
-                          <UserX className="h-3 w-3 mr-1" />
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                          <UserX className="h-3 w-3" />
                           ระงับการใช้งาน
-                        </Badge>
+                        </span>
                       )}
                     </TableCell>
-                    <TableCell className="text-center font-mono text-sm text-muted-foreground">
+                    <TableCell className="text-center font-mono text-sm text-slate-400 py-3">
                       {u._count?.stockMovements || 0} ครั้ง
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-xs whitespace-nowrap">
+                    <TableCell className="text-slate-400 text-xs font-mono whitespace-nowrap py-3">
                       {new Date(u.createdAt).toLocaleDateString('th-TH', {
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric',
                       })}
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="text-center py-3">
                       <div className="flex items-center justify-center gap-1">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+                        <button
+                          className="h-8 w-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-cyan-300 hover:bg-cyan-500/10 transition-all"
                           title="แก้ไขผู้ใช้"
                           onClick={() => handleOpenEdit(u)}
                         >
                           <Edit2 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10"
+                        </button>
+                        <button
+                          className="h-8 w-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                           title="ลบผู้ใช้"
                           disabled={u.id === currentUser?.id}
                           onClick={() => {
@@ -384,7 +387,7 @@ export default function UsersPage() {
                           }}
                         >
                           <Trash2 className="h-4 w-4" />
-                        </Button>
+                        </button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -393,59 +396,62 @@ export default function UsersPage() {
             </TableBody>
           </Table>
         </div>
-      </Card>
+      </div>
 
       {/* Modal: Add User */}
       <Dialog open={addModalOpen} onOpenChange={setAddModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-[#0d1527] border border-blue-900/50 text-slate-200 shadow-2xl">
           <DialogHeader>
-            <DialogTitle>เพิ่มผู้ใช้งานใหม่</DialogTitle>
-            <DialogDescription>สร้างบัญชีสำหรับเข้าใช้งานระบบจัดการสต๊อก</DialogDescription>
+            <DialogTitle className="text-white">เพิ่มผู้ใช้งานใหม่</DialogTitle>
+            <DialogDescription className="text-slate-400">สร้างบัญชีสำหรับเข้าใช้งานระบบจัดการสต๊อก</DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleAddUser} className="space-y-4 py-2">
             <div className="space-y-1.5">
-              <Label htmlFor="userName">ชื่อ-นามสกุล *</Label>
-              <Input
+              <Label htmlFor="userName" className="text-slate-300">ชื่อ-นามสกุล *</Label>
+              <input
                 id="userName"
                 placeholder="เช่น สมชาย ใจดี"
                 value={addForm.name}
                 onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
                 required
+                className="w-full px-3 py-2 rounded-xl bg-[#0a101f]/90 border border-blue-500/25 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 transition-all"
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="userEmail">อีเมล *</Label>
-              <Input
+              <Label htmlFor="userEmail" className="text-slate-300">อีเมล *</Label>
+              <input
                 id="userEmail"
                 type="email"
                 placeholder="name@example.com"
                 value={addForm.email}
                 onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
                 required
+                className="w-full px-3 py-2 rounded-xl bg-[#0a101f]/90 border border-blue-500/25 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 transition-all"
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="userPassword">รหัสผ่านเริ่มต้น *</Label>
-              <Input
+              <Label htmlFor="userPassword" className="text-slate-300">รหัสผ่านเริ่มต้น *</Label>
+              <input
                 id="userPassword"
                 type="password"
                 placeholder="อย่างน้อย 6 ตัวอักษร"
                 value={addForm.password}
                 onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
                 required
+                className="w-full px-3 py-2 rounded-xl bg-[#0a101f]/90 border border-blue-500/25 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 transition-all"
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="userRole">บทบาท (Role) *</Label>
+              <Label htmlFor="userRole" className="text-slate-300">บทบาท (Role) *</Label>
               <select
                 id="userRole"
                 value={addForm.role}
                 onChange={(e) => setAddForm({ ...addForm, role: e.target.value as any })}
-                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className={selectClass}
               >
                 <option value="STAFF">พนักงานทั่วไป (STAFF) - ทำรายการสต๊อกได้</option>
                 <option value="ADMIN">ผู้ดูแลระบบ (ADMIN) - จัดการข้อมูลทั้งหมดได้</option>
@@ -457,12 +463,17 @@ export default function UsersPage() {
                 type="button"
                 variant="outline"
                 onClick={() => setAddModalOpen(false)}
+                className="border-blue-900/50 text-slate-300 hover:bg-blue-900/30 hover:text-white"
               >
                 ยกเลิก
               </Button>
-              <Button type="submit" disabled={submitting}>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="px-5 py-2 rounded-full font-bold text-xs uppercase tracking-wider text-slate-950 bg-gradient-to-r from-cyan-400 to-blue-500 shadow-[0_0_15px_rgba(0,212,255,0.35)] hover:shadow-[0_0_25px_rgba(0,212,255,0.55)] transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+              >
                 {submitting ? 'กำลังบันทึก...' : 'สร้างบัญชีผู้ใช้'}
-              </Button>
+              </button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -470,30 +481,31 @@ export default function UsersPage() {
 
       {/* Modal: Edit User */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-[#0d1527] border border-blue-900/50 text-slate-200 shadow-2xl">
           <DialogHeader>
-            <DialogTitle>แก้ไขข้อมูลผู้ใช้</DialogTitle>
-            <DialogDescription>{selectedUser?.email}</DialogDescription>
+            <DialogTitle className="text-white">แก้ไขข้อมูลผู้ใช้</DialogTitle>
+            <DialogDescription className="text-slate-400">{selectedUser?.email}</DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleEditUser} className="space-y-4 py-2">
             <div className="space-y-1.5">
-              <Label htmlFor="editName">ชื่อ-นามสกุล *</Label>
-              <Input
+              <Label htmlFor="editName" className="text-slate-300">ชื่อ-นามสกุล *</Label>
+              <input
                 id="editName"
                 value={editForm.name}
                 onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
                 required
+                className="w-full px-3 py-2 rounded-xl bg-[#0a101f]/90 border border-blue-500/25 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 transition-all"
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="editRole">บทบาท (Role) *</Label>
+              <Label htmlFor="editRole" className="text-slate-300">บทบาท (Role) *</Label>
               <select
                 id="editRole"
                 value={editForm.role}
                 onChange={(e) => setEditForm({ ...editForm, role: e.target.value as any })}
-                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className={selectClass}
               >
                 <option value="STAFF">พนักงานทั่วไป (STAFF)</option>
                 <option value="ADMIN">ผู้ดูแลระบบ (ADMIN)</option>
@@ -501,12 +513,12 @@ export default function UsersPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="editStatus">สถานะการใช้งาน *</Label>
+              <Label htmlFor="editStatus" className="text-slate-300">สถานะการใช้งาน *</Label>
               <select
                 id="editStatus"
                 value={editForm.status}
                 onChange={(e) => setEditForm({ ...editForm, status: e.target.value as any })}
-                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className={selectClass}
               >
                 <option value="ACTIVE">เปิดใช้งาน (ACTIVE)</option>
                 <option value="DISABLED">ระงับการใช้งาน (DISABLED)</option>
@@ -518,12 +530,17 @@ export default function UsersPage() {
                 type="button"
                 variant="outline"
                 onClick={() => setEditModalOpen(false)}
+                className="border-blue-900/50 text-slate-300 hover:bg-blue-900/30 hover:text-white"
               >
                 ยกเลิก
               </Button>
-              <Button type="submit" disabled={submitting}>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="px-5 py-2 rounded-full font-bold text-xs uppercase tracking-wider text-slate-950 bg-gradient-to-r from-cyan-400 to-blue-500 shadow-[0_0_15px_rgba(0,212,255,0.35)] hover:shadow-[0_0_25px_rgba(0,212,255,0.55)] transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+              >
                 {submitting ? 'กำลังบันทึก...' : 'บันทึกการแก้ไข'}
-              </Button>
+              </button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -531,13 +548,13 @@ export default function UsersPage() {
 
       {/* Modal: Delete User */}
       <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent className="sm:max-w-sm bg-[#0d1527] border border-blue-900/50 text-slate-200 shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="text-destructive flex items-center gap-2">
+            <DialogTitle className="text-red-400 flex items-center gap-2">
               <Trash2 className="h-5 w-5" />
               ยืนยันการลบผู้ใช้
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-slate-400">
               คุณต้องการลบผู้ใช้ &quot;{selectedUser?.name}&quot; ({selectedUser?.email}) หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้
             </DialogDescription>
           </DialogHeader>
@@ -545,16 +562,17 @@ export default function UsersPage() {
             <Button
               variant="outline"
               onClick={() => setDeleteModalOpen(false)}
+              className="border-blue-900/50 text-slate-300 hover:bg-blue-900/30 hover:text-white"
             >
               ยกเลิก
             </Button>
-            <Button
-              variant="destructive"
+            <button
               disabled={submitting}
               onClick={handleDeleteUser}
+              className="px-5 py-2 rounded-full font-bold text-xs uppercase tracking-wider text-white bg-gradient-to-r from-red-600 to-rose-500 shadow-[0_0_15px_rgba(239,68,68,0.3)] hover:shadow-[0_0_25px_rgba(239,68,68,0.5)] transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
             >
               {submitting ? 'กำลังลบ...' : 'ลบผู้ใช้'}
-            </Button>
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

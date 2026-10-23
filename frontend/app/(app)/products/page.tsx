@@ -5,11 +5,9 @@ import { useSearchParams } from 'next/navigation';
 import api from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { Product, Category, PaginatedData, StockMovement } from '@/types';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -324,127 +322,136 @@ function ProductsContent() {
   const formatCurrency = (n: number) =>
     new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(n);
 
+  const selectClass =
+    'flex h-9 w-full rounded-xl border border-blue-500/25 bg-[#0a101f]/90 px-3 py-1 text-sm text-slate-200 shadow-xs transition-colors focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20';
+
+  const inputClass =
+    'w-full px-3 py-2 rounded-xl bg-[#0a101f]/90 border border-blue-500/25 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 transition-all';
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 rounded-2xl bg-[#0e162b]/85 border border-blue-500/15 backdrop-blur-xl shadow-lg">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">จัดการสินค้า</h1>
-          <p className="text-muted-foreground">รายการสินค้าและจัดการสต๊อกคงเหลือ</p>
+          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
+            <span>จัดการสินค้า</span>
+            <span className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#00e5ff]" />
+          </h1>
+          <p className="text-xs text-slate-400 font-mono mt-0.5">รายการสินค้าและจัดการสต๊อกคงเหลือ</p>
         </div>
         {isAdmin && (
-          <Button onClick={handleOpenAdd} className="gap-2 shadow-sm">
-            <Plus className="h-4 w-4" />
-            เพิ่มสินค้าใหม่
-          </Button>
+          <button
+            onClick={handleOpenAdd}
+            className="px-5 py-2 rounded-full font-bold text-xs uppercase tracking-wider text-slate-950 bg-gradient-to-r from-cyan-400 via-sky-300 to-purple-400 shadow-[0_0_20px_rgba(0,212,255,0.45)] hover:shadow-[0_0_30px_rgba(0,212,255,0.7)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5 text-slate-950" />
+            <span>เพิ่มสินค้าใหม่</span>
+          </button>
         )}
       </div>
 
       {/* Filter & Search Bar */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="ค้นหาตามชื่อสินค้า หรือ SKU..."
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPagination((prev) => ({ ...prev, page: 1 }));
-                }}
-                className="pl-9"
-              />
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              {/* Category Filter */}
-              <div className="w-40 sm:w-48">
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => {
-                    setSelectedCategory(e.target.value);
-                    setPagination((prev) => ({ ...prev, page: 1 }));
-                  }}
-                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                >
-                  <option value="">ทุกหมวดหมู่</option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Status Filter */}
-              <div className="w-36">
-                <select
-                  value={selectedStatus}
-                  onChange={(e) => {
-                    setSelectedStatus(e.target.value as any);
-                    setPagination((prev) => ({ ...prev, page: 1 }));
-                  }}
-                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                >
-                  <option value="all">สถานะทั้งหมด</option>
-                  <option value="in-stock">สต๊อกปกติ</option>
-                  <option value="low">ใกล้หมด</option>
-                  <option value="out">สินค้าหมด</option>
-                </select>
-              </div>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setSearch('');
-                  setSelectedCategory('');
-                  setSelectedStatus('all');
-                  setPagination((prev) => ({ ...prev, page: 1 }));
-                }}
-                className="h-9 px-3 gap-1.5"
-              >
-                <RefreshCw className="h-3.5 w-3.5" />
-                รีเซ็ต
-              </Button>
-            </div>
+      <div className="p-4 rounded-2xl bg-[#0e162b]/80 border border-blue-500/15 backdrop-blur-xl">
+        <div className="flex flex-col md:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="ค้นหาตามชื่อสินค้า หรือ SKU..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPagination((prev) => ({ ...prev, page: 1 }));
+              }}
+              className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#0a101f]/90 border border-blue-500/25 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+            />
           </div>
-        </CardContent>
-      </Card>
+
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Category Filter */}
+            <div className="w-40 sm:w-48">
+              <select
+                value={selectedCategory}
+                onChange={(e) => {
+                  setSelectedCategory(e.target.value);
+                  setPagination((prev) => ({ ...prev, page: 1 }));
+                }}
+                className={selectClass}
+              >
+                <option value="">ทุกหมวดหมู่</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Status Filter */}
+            <div className="w-36">
+              <select
+                value={selectedStatus}
+                onChange={(e) => {
+                  setSelectedStatus(e.target.value as any);
+                  setPagination((prev) => ({ ...prev, page: 1 }));
+                }}
+                className={selectClass}
+              >
+                <option value="all">สถานะทั้งหมด</option>
+                <option value="in-stock">สต๊อกปกติ</option>
+                <option value="low">ใกล้หมด</option>
+                <option value="out">สินค้าหมด</option>
+              </select>
+            </div>
+
+            <button
+              onClick={() => {
+                setSearch('');
+                setSelectedCategory('');
+                setSelectedStatus('all');
+                setPagination((prev) => ({ ...prev, page: 1 }));
+              }}
+              className="h-9 px-4 rounded-xl flex items-center gap-1.5 text-sm text-slate-400 border border-blue-900/40 hover:text-cyan-300 hover:border-cyan-500/40 hover:bg-cyan-500/5 transition-all"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              รีเซ็ต
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Products Table */}
-      <Card className="overflow-hidden">
+      <div className="rounded-2xl bg-[#0e162b]/80 border border-blue-500/15 backdrop-blur-xl overflow-hidden shadow-md">
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="bg-muted/40">
-              <TableRow>
-                <TableHead className="w-28">รหัส SKU</TableHead>
-                <TableHead>ชื่อสินค้า</TableHead>
-                <TableHead>หมวดหมู่</TableHead>
-                <TableHead className="text-right">ราคาขาย</TableHead>
-                <TableHead className="text-right">ต้นทุน</TableHead>
-                <TableHead className="text-center">คงเหลือ / ขั้นต่ำ</TableHead>
-                <TableHead className="text-center">สถานะ</TableHead>
-                <TableHead className="text-center w-52">จัดการสต๊อก / รายการ</TableHead>
+            <TableHeader>
+              <TableRow className="border-b border-blue-900/40 bg-[#0a101f]/90 hover:bg-[#0a101f]/90">
+                <TableHead className="text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono py-3 w-28">รหัส SKU</TableHead>
+                <TableHead className="text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono py-3">ชื่อสินค้า</TableHead>
+                <TableHead className="text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono py-3">หมวดหมู่</TableHead>
+                <TableHead className="text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono text-right py-3">ราคาขาย</TableHead>
+                <TableHead className="text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono text-right py-3">ต้นทุน</TableHead>
+                <TableHead className="text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono text-center py-3">คงเหลือ / ขั้นต่ำ</TableHead>
+                <TableHead className="text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono text-center py-3">สถานะ</TableHead>
+                <TableHead className="text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono text-center w-52 py-3">จัดการสต๊อก</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="h-36 text-center">
-                    <div className="flex flex-col items-center justify-center gap-2">
-                      <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-primary" />
-                      <span className="text-xs text-muted-foreground">กำลังโหลดข้อมูล...</span>
+                  <TableCell colSpan={8} className="h-36 text-center border-b border-blue-900/20">
+                    <div className="flex flex-col items-center justify-center gap-3">
+                      <div className="animate-spin rounded-full h-7 w-7 border-2 border-cyan-400 border-t-transparent shadow-[0_0_15px_#00e5ff]" />
+                      <span className="text-xs font-mono text-cyan-400 tracking-wider">LOADING DATA...</span>
                     </div>
                   </TableCell>
                 </TableRow>
               ) : products.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="h-36 text-center text-muted-foreground">
+                  <TableCell colSpan={8} className="h-36 text-center border-b border-blue-900/20">
                     <div className="flex flex-col items-center justify-center gap-2">
-                      <Package className="h-8 w-8 text-muted-foreground/50" />
-                      <span>ไม่พบข้อมูลสินค้า</span>
+                      <Package className="h-8 w-8 text-slate-600" />
+                      <span className="text-sm text-slate-500">ไม่พบข้อมูลสินค้า</span>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -454,123 +461,109 @@ function ProductsContent() {
                   const isLowStock = p.stock > 0 && p.stock <= p.minimumStock;
 
                   return (
-                    <TableRow key={p.id} className="hover:bg-muted/40">
-                      <TableCell className="font-mono text-xs font-semibold text-primary">
+                    <TableRow key={p.id} className="border-b border-blue-900/20 hover:bg-blue-500/5 transition-colors">
+                      <TableCell className="font-mono text-xs font-bold text-cyan-300 py-3">
                         {p.sku}
                       </TableCell>
-                      <TableCell>
-                        <div className="font-medium text-foreground">{p.name}</div>
+                      <TableCell className="py-3">
+                        <div className="font-medium text-slate-200">{p.name}</div>
                         {p.description && (
-                          <div className="text-xs text-muted-foreground line-clamp-1">
-                            {p.description}
-                          </div>
+                          <div className="text-xs text-slate-500 line-clamp-1">{p.description}</div>
                         )}
                       </TableCell>
-                      <TableCell>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-secondary text-secondary-foreground">
+                      <TableCell className="py-3">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/15 text-blue-300 border border-blue-500/20">
                           {p.category?.name || '-'}
                         </span>
                       </TableCell>
-                      <TableCell className="text-right font-medium">
+                      <TableCell className="text-right font-medium text-slate-200 py-3">
                         {formatCurrency(p.price)}
                       </TableCell>
-                      <TableCell className="text-right text-muted-foreground text-xs">
+                      <TableCell className="text-right text-slate-500 text-xs font-mono py-3">
                         {formatCurrency(p.cost)}
                       </TableCell>
-                      <TableCell className="text-center font-semibold">
-                        <span className={isOutOfStock ? 'text-destructive' : isLowStock ? 'text-amber-600' : 'text-foreground'}>
+                      <TableCell className="text-center font-semibold font-mono py-3">
+                        <span className={isOutOfStock ? 'text-rose-400' : isLowStock ? 'text-amber-400' : 'text-slate-200'}>
                           {formatNumber(p.stock)}
                         </span>{' '}
-                        <span className="text-xs text-muted-foreground font-normal">
+                        <span className="text-xs text-slate-600 font-normal">
                           / {formatNumber(p.minimumStock)} {p.unit}
                         </span>
                       </TableCell>
-                      <TableCell className="text-center">
+                      <TableCell className="text-center py-3">
                         {isOutOfStock ? (
-                          <Badge variant="destructive" className="gap-1">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
                             <XCircle className="h-3 w-3" />
                             หมด
-                          </Badge>
+                          </span>
                         ) : isLowStock ? (
-                          <Badge className="bg-amber-500 hover:bg-amber-600 gap-1 text-white">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
                             <AlertTriangle className="h-3 w-3" />
                             ใกล้หมด
-                          </Badge>
+                          </span>
                         ) : (
-                          <Badge variant="secondary" className="gap-1 text-emerald-700 bg-emerald-100 hover:bg-emerald-200 border-emerald-200">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                             <CheckCircle2 className="h-3 w-3" />
                             ปกติ
-                          </Badge>
+                          </span>
                         )}
                       </TableCell>
-                      <TableCell className="text-center">
+                      <TableCell className="text-center py-3">
                         <div className="flex items-center justify-center gap-1">
                           {/* Stock In */}
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 w-8 p-0 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                          <button
+                            className="h-8 w-8 flex items-center justify-center rounded-lg text-emerald-500 hover:text-emerald-300 hover:bg-emerald-500/10 transition-all"
                             title="รับสินค้าเข้าสต๊อก"
                             onClick={() => handleOpenStockAction(p, 'IN')}
                           >
                             <ArrowUpCircle className="h-4 w-4" />
-                          </Button>
+                          </button>
 
                           {/* Stock Out */}
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 w-8 p-0 text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+                          <button
+                            className="h-8 w-8 flex items-center justify-center rounded-lg text-rose-500 hover:text-rose-300 hover:bg-rose-500/10 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                             title="เบิกสินค้าออกจากสต๊อก"
                             disabled={p.stock <= 0}
                             onClick={() => handleOpenStockAction(p, 'OUT')}
                           >
                             <ArrowDownCircle className="h-4 w-4" />
-                          </Button>
+                          </button>
 
                           {/* Adjust (Admin only) */}
                           {isAdmin && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-8 w-8 p-0 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                            <button
+                              className="h-8 w-8 flex items-center justify-center rounded-lg text-indigo-500 hover:text-indigo-300 hover:bg-indigo-500/10 transition-all"
                               title="ปรับปรุงยอดสต๊อก"
                               onClick={() => handleOpenStockAction(p, 'ADJUSTMENT')}
                             >
                               <SlidersHorizontal className="h-4 w-4" />
-                            </Button>
+                            </button>
                           )}
 
                           {/* View details */}
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+                          <button
+                            className="h-8 w-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-cyan-300 hover:bg-cyan-500/10 transition-all"
                             title="ดูรายละเอียดและประวัติ"
                             onClick={() => handleOpenDetail(p)}
                           >
                             <Eye className="h-4 w-4" />
-                          </Button>
+                          </button>
 
                           {/* Edit (Admin) */}
                           {isAdmin && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+                            <button
+                              className="h-8 w-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-cyan-300 hover:bg-cyan-500/10 transition-all"
                               title="แก้ไขสินค้า"
                               onClick={() => handleOpenEdit(p)}
                             >
                               <Edit2 className="h-4 w-4" />
-                            </Button>
+                            </button>
                           )}
 
                           {/* Delete (Admin) */}
                           {isAdmin && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10"
+                            <button
+                              className="h-8 w-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all"
                               title="ลบสินค้า"
                               onClick={() => {
                                 setDeletingProduct(p);
@@ -578,7 +571,7 @@ function ProductsContent() {
                               }}
                             >
                               <Trash2 className="h-4 w-4" />
-                            </Button>
+                            </button>
                           )}
                         </div>
                       </TableCell>
@@ -591,45 +584,41 @@ function ProductsContent() {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-between px-4 py-3 border-t bg-muted/20 text-sm">
-          <div className="text-muted-foreground">
-            ทั้งหมด <span className="font-medium text-foreground">{pagination.total}</span> รายการ (หน้า{' '}
-            <span className="font-medium text-foreground">{pagination.page}</span> จาก{' '}
-            <span className="font-medium text-foreground">{pagination.totalPages || 1}</span>)
+        <div className="flex items-center justify-between px-4 py-3 border-t border-blue-900/30 bg-[#0a101f]/60 text-sm">
+          <div className="text-slate-400 font-mono text-xs">
+            ทั้งหมด <span className="font-bold text-cyan-300">{pagination.total}</span> รายการ (หน้า{' '}
+            <span className="font-bold text-slate-200">{pagination.page}</span> จาก{' '}
+            <span className="font-bold text-slate-200">{pagination.totalPages || 1}</span>)
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
+            <button
               disabled={pagination.page <= 1 || loading}
               onClick={() => setPagination((prev) => ({ ...prev, page: prev.page - 1 }))}
-              className="h-8 gap-1"
+              className="h-8 px-3 rounded-xl flex items-center gap-1 text-xs text-slate-400 border border-blue-900/40 hover:text-cyan-300 hover:border-cyan-500/40 hover:bg-cyan-500/5 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ChevronLeft className="h-4 w-4" />
               ก่อนหน้า
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
+            </button>
+            <button
               disabled={pagination.page >= pagination.totalPages || loading}
               onClick={() => setPagination((prev) => ({ ...prev, page: prev.page + 1 }))}
-              className="h-8 gap-1"
+              className="h-8 px-3 rounded-xl flex items-center gap-1 text-xs text-slate-400 border border-blue-900/40 hover:text-cyan-300 hover:border-cyan-500/40 hover:bg-cyan-500/5 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
               ถัดไป
               <ChevronRight className="h-4 w-4" />
-            </Button>
+            </button>
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Modal 1: Add/Edit Product */}
       <Dialog open={productModalOpen} onOpenChange={setProductModalOpen}>
-        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto bg-[#0d1527] border border-blue-900/50 text-slate-200 shadow-2xl">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-white">
               {editingProduct ? 'แก้ไขข้อมูลสินค้า' : 'เพิ่มสินค้าใหม่'}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-slate-400">
               กรอกข้อมูลรายละเอียดสินค้าให้ครบถ้วน
             </DialogDescription>
           </DialogHeader>
@@ -637,24 +626,25 @@ function ProductsContent() {
           <form onSubmit={handleSaveProduct} className="space-y-4 py-2">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="sku">รหัสสินค้า (SKU) *</Label>
-                <Input
+                <Label htmlFor="sku" className="text-slate-300">รหัสสินค้า (SKU) *</Label>
+                <input
                   id="sku"
                   placeholder="เช่น PRD-001"
                   value={productForm.sku}
                   onChange={(e) => setProductForm({ ...productForm, sku: e.target.value })}
                   disabled={!!editingProduct}
                   required
+                  className={`${inputClass} ${editingProduct ? 'opacity-50 cursor-not-allowed' : ''}`}
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="categoryId">หมวดหมู่ *</Label>
+                <Label htmlFor="categoryId" className="text-slate-300">หมวดหมู่ *</Label>
                 <select
                   id="categoryId"
                   value={productForm.categoryId}
                   onChange={(e) => setProductForm({ ...productForm, categoryId: e.target.value })}
-                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  className={selectClass}
                   required
                 >
                   <option value="">เลือกหมวดหมู่</option>
@@ -668,30 +658,32 @@ function ProductsContent() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="name">ชื่อสินค้า *</Label>
-              <Input
+              <Label htmlFor="name" className="text-slate-300">ชื่อสินค้า *</Label>
+              <input
                 id="name"
                 placeholder="ระบุชื่อสินค้า"
                 value={productForm.name}
                 onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
                 required
+                className={inputClass}
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="description">รายละเอียดเพิ่มเติม</Label>
-              <Input
+              <Label htmlFor="description" className="text-slate-300">รายละเอียดเพิ่มเติม</Label>
+              <input
                 id="description"
                 placeholder="รายละเอียด ขนาด คุณสมบัติ"
                 value={productForm.description}
                 onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+                className={inputClass}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="price">ราคาขาย (บาท) *</Label>
-                <Input
+                <Label htmlFor="price" className="text-slate-300">ราคาขาย (บาท) *</Label>
+                <input
                   id="price"
                   type="number"
                   step="0.01"
@@ -699,12 +691,13 @@ function ProductsContent() {
                   value={productForm.price}
                   onChange={(e) => setProductForm({ ...productForm, price: Number(e.target.value) })}
                   required
+                  className={inputClass}
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="cost">ต้นทุน (บาท) *</Label>
-                <Input
+                <Label htmlFor="cost" className="text-slate-300">ต้นทุน (บาท) *</Label>
+                <input
                   id="cost"
                   type="number"
                   step="0.01"
@@ -712,6 +705,7 @@ function ProductsContent() {
                   value={productForm.cost}
                   onChange={(e) => setProductForm({ ...productForm, cost: Number(e.target.value) })}
                   required
+                  className={inputClass}
                 />
               </div>
             </div>
@@ -719,35 +713,38 @@ function ProductsContent() {
             <div className="grid grid-cols-3 gap-3">
               {!editingProduct && (
                 <div className="space-y-1.5">
-                  <Label htmlFor="stock">สต๊อกเริ่มต้น</Label>
-                  <Input
+                  <Label htmlFor="stock" className="text-slate-300">สต๊อกเริ่มต้น</Label>
+                  <input
                     id="stock"
                     type="number"
                     min="0"
                     value={productForm.stock}
                     onChange={(e) => setProductForm({ ...productForm, stock: Number(e.target.value) })}
+                    className={inputClass}
                   />
                 </div>
               )}
 
               <div className="space-y-1.5">
-                <Label htmlFor="minimumStock">จุดเตือนขั้นต่ำ</Label>
-                <Input
+                <Label htmlFor="minimumStock" className="text-slate-300">จุดเตือนขั้นต่ำ</Label>
+                <input
                   id="minimumStock"
                   type="number"
                   min="0"
                   value={productForm.minimumStock}
                   onChange={(e) => setProductForm({ ...productForm, minimumStock: Number(e.target.value) })}
+                  className={inputClass}
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="unit">หน่วยนับ</Label>
-                <Input
+                <Label htmlFor="unit" className="text-slate-300">หน่วยนับ</Label>
+                <input
                   id="unit"
                   placeholder="เช่น ชิ้น, กล่อง"
                   value={productForm.unit}
                   onChange={(e) => setProductForm({ ...productForm, unit: e.target.value })}
+                  className={inputClass}
                 />
               </div>
             </div>
@@ -757,12 +754,17 @@ function ProductsContent() {
                 type="button"
                 variant="outline"
                 onClick={() => setProductModalOpen(false)}
+                className="border-blue-900/50 text-slate-300 hover:bg-blue-900/30 hover:text-white"
               >
                 ยกเลิก
               </Button>
-              <Button type="submit" disabled={submitting}>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="px-5 py-2 rounded-full font-bold text-xs uppercase tracking-wider text-slate-950 bg-gradient-to-r from-cyan-400 to-blue-500 shadow-[0_0_15px_rgba(0,212,255,0.35)] hover:shadow-[0_0_25px_rgba(0,212,255,0.55)] transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+              >
                 {submitting ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
-              </Button>
+              </button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -770,63 +772,63 @@ function ProductsContent() {
 
       {/* Modal 2: Quick Stock Transaction (In / Out / Adjust) */}
       <Dialog open={stockModalOpen} onOpenChange={setStockModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-[#0d1527] border border-blue-900/50 text-slate-200 shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-white">
               {stockActionType === 'IN' && (
                 <>
-                  <ArrowUpCircle className="h-5 w-5 text-emerald-600" />
+                  <ArrowUpCircle className="h-5 w-5 text-emerald-400" />
                   <span>รับสินค้าเข้าสต๊อก (Stock In)</span>
                 </>
               )}
               {stockActionType === 'OUT' && (
                 <>
-                  <ArrowDownCircle className="h-5 w-5 text-rose-600" />
+                  <ArrowDownCircle className="h-5 w-5 text-rose-400" />
                   <span>เบิกสินค้าออกจากสต๊อก (Stock Out)</span>
                 </>
               )}
               {stockActionType === 'ADJUSTMENT' && (
                 <>
-                  <SlidersHorizontal className="h-5 w-5 text-indigo-600" />
+                  <SlidersHorizontal className="h-5 w-5 text-indigo-400" />
                   <span>ปรับยอดคงเหลือสต๊อก (Stock Adjust)</span>
                 </>
               )}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-slate-400">
               {selectedProduct?.name} ({selectedProduct?.sku})
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleStockActionSubmit} className="space-y-4 py-2">
-            <div className="p-3 rounded-lg bg-muted/60 space-y-1 text-sm">
+            <div className="p-3 rounded-xl bg-[#0a101f]/90 border border-blue-500/20 space-y-1 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">สต๊อกปัจจุบัน:</span>
-                <span className="font-semibold text-foreground">
+                <span className="text-slate-400">สต๊อกปัจจุบัน:</span>
+                <span className="font-semibold font-mono text-slate-200">
                   {selectedProduct?.stock} {selectedProduct?.unit}
                 </span>
               </div>
               {stockActionType === 'IN' && (
-                <div className="flex justify-between text-emerald-600 font-medium">
+                <div className="flex justify-between text-emerald-400 font-medium">
                   <span>ยอดหลังรับเข้า:</span>
-                  <span>
+                  <span className="font-mono">
                     {(selectedProduct?.stock || 0) + Number(stockForm.quantity)}{' '}
                     {selectedProduct?.unit}
                   </span>
                 </div>
               )}
               {stockActionType === 'OUT' && (
-                <div className="flex justify-between text-rose-600 font-medium">
+                <div className="flex justify-between text-rose-400 font-medium">
                   <span>ยอดหลังเบิกออก:</span>
-                  <span>
+                  <span className="font-mono">
                     {Math.max(0, (selectedProduct?.stock || 0) - Number(stockForm.quantity))}{' '}
                     {selectedProduct?.unit}
                   </span>
                 </div>
               )}
               {stockActionType === 'ADJUSTMENT' && (
-                <div className="flex justify-between text-indigo-600 font-medium">
+                <div className="flex justify-between text-indigo-400 font-medium">
                   <span>ยอดใหม่หลังปรับ:</span>
-                  <span>
+                  <span className="font-mono">
                     {Number(stockForm.quantity)} {selectedProduct?.unit}
                   </span>
                 </div>
@@ -834,10 +836,10 @@ function ProductsContent() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="stockQty">
+              <Label htmlFor="stockQty" className="text-slate-300">
                 {stockActionType === 'ADJUSTMENT' ? 'ระบุยอดสต๊อกใหม่ที่ถูกต้อง *' : 'จำนวน *'}
               </Label>
-              <Input
+              <input
                 id="stockQty"
                 type="number"
                 min={stockActionType === 'ADJUSTMENT' ? 0 : 1}
@@ -845,12 +847,13 @@ function ProductsContent() {
                 value={stockForm.quantity}
                 onChange={(e) => setStockForm({ ...stockForm, quantity: Number(e.target.value) })}
                 required
+                className={inputClass}
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="stockNote">หมายเหตุ / เหตุผล</Label>
-              <Input
+              <Label htmlFor="stockNote" className="text-slate-300">หมายเหตุ / เหตุผล</Label>
+              <input
                 id="stockNote"
                 placeholder={
                   stockActionType === 'IN'
@@ -861,6 +864,7 @@ function ProductsContent() {
                 }
                 value={stockForm.note}
                 onChange={(e) => setStockForm({ ...stockForm, note: e.target.value })}
+                className={inputClass}
               />
             </div>
 
@@ -869,22 +873,23 @@ function ProductsContent() {
                 type="button"
                 variant="outline"
                 onClick={() => setStockModalOpen(false)}
+                className="border-blue-900/50 text-slate-300 hover:bg-blue-900/30 hover:text-white"
               >
                 ยกเลิก
               </Button>
-              <Button
+              <button
                 type="submit"
                 disabled={submitting}
-                className={
+                className={`px-5 py-2 rounded-full font-bold text-xs uppercase tracking-wider text-white shadow-lg hover:scale-[1.02] transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer ${
                   stockActionType === 'IN'
-                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                    ? 'bg-gradient-to-r from-emerald-600 to-teal-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]'
                     : stockActionType === 'OUT'
-                    ? 'bg-rose-600 hover:bg-rose-700 text-white'
-                    : ''
-                }
+                    ? 'bg-gradient-to-r from-rose-600 to-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]'
+                    : 'bg-gradient-to-r from-indigo-600 to-purple-500 shadow-[0_0_15px_rgba(99,102,241,0.3)]'
+                }`}
               >
                 {submitting ? 'กำลังบันทึก...' : 'ยืนยันทำรายการ'}
-              </Button>
+              </button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -892,13 +897,13 @@ function ProductsContent() {
 
       {/* Modal 3: Product Detail & Recent History */}
       <Dialog open={detailModalOpen} onOpenChange={setDetailModalOpen}>
-        <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto bg-[#0d1527] border border-blue-900/50 text-slate-200 shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5 text-primary" />
+            <DialogTitle className="flex items-center gap-2 text-white">
+              <Package className="h-5 w-5 text-cyan-400" />
               <span>รายละเอียดสินค้า</span>
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-slate-400 font-mono">
               รหัส SKU: {detailProduct?.sku}
             </DialogDescription>
           </DialogHeader>
@@ -906,87 +911,87 @@ function ProductsContent() {
           {detailProduct && (
             <div className="space-y-4 py-2">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="p-3 rounded-lg bg-muted/40">
-                  <span className="text-xs text-muted-foreground">หมวดหมู่</span>
-                  <p className="font-semibold">{detailProduct.category?.name || '-'}</p>
+                <div className="p-3 rounded-xl bg-[#0a101f]/90 border border-blue-500/20">
+                  <span className="text-xs text-slate-500">หมวดหมู่</span>
+                  <p className="font-semibold text-slate-200 mt-0.5">{detailProduct.category?.name || '-'}</p>
                 </div>
-                <div className="p-3 rounded-lg bg-muted/40">
-                  <span className="text-xs text-muted-foreground">คงเหลือปัจจุบัน</span>
-                  <p className="font-semibold text-primary">
+                <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+                  <span className="text-xs text-slate-500">คงเหลือปัจจุบัน</span>
+                  <p className="font-bold text-cyan-300 font-mono mt-0.5">
                     {formatNumber(detailProduct.stock)} {detailProduct.unit}
                   </p>
                 </div>
-                <div className="p-3 rounded-lg bg-muted/40">
-                  <span className="text-xs text-muted-foreground">ราคาขาย</span>
-                  <p className="font-semibold">{formatCurrency(detailProduct.price)}</p>
+                <div className="p-3 rounded-xl bg-[#0a101f]/90 border border-blue-500/20">
+                  <span className="text-xs text-slate-500">ราคาขาย</span>
+                  <p className="font-semibold text-slate-200 mt-0.5">{formatCurrency(detailProduct.price)}</p>
                 </div>
-                <div className="p-3 rounded-lg bg-muted/40">
-                  <span className="text-xs text-muted-foreground">ต้นทุน</span>
-                  <p className="font-semibold text-muted-foreground">{formatCurrency(detailProduct.cost)}</p>
+                <div className="p-3 rounded-xl bg-[#0a101f]/90 border border-blue-500/20">
+                  <span className="text-xs text-slate-500">ต้นทุน</span>
+                  <p className="font-semibold text-slate-400 mt-0.5">{formatCurrency(detailProduct.cost)}</p>
                 </div>
               </div>
 
               <div>
-                <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
+                <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5 text-slate-300">
+                  <Clock className="h-4 w-4 text-slate-500" />
                   ประวัติการเคลื่อนไหวสต๊อกล่าสุด
                 </h4>
 
                 {detailLoading ? (
-                  <div className="py-8 text-center text-xs text-muted-foreground">
+                  <div className="py-8 text-center text-xs text-cyan-400 font-mono">
                     กำลังโหลดประวัติ...
                   </div>
                 ) : detailMovements.length === 0 ? (
-                  <div className="py-6 text-center text-xs text-muted-foreground border rounded-lg">
+                  <div className="py-6 text-center text-xs text-slate-500 border border-blue-900/30 rounded-xl bg-[#0a101f]/50">
                     ยังไม่มีประวัติการเคลื่อนไหว
                   </div>
                 ) : (
-                  <div className="border rounded-lg overflow-x-auto">
+                  <div className="rounded-xl overflow-x-auto border border-blue-900/30 bg-[#0a101f]/50">
                     <Table>
-                      <TableHeader className="bg-muted/40 text-xs">
-                        <TableRow>
-                          <TableHead>วัน-เวลา</TableHead>
-                          <TableHead>ประเภท</TableHead>
-                          <TableHead className="text-right">จำนวน</TableHead>
-                          <TableHead className="text-right">ยอดก่อนหน้า/ใหม่</TableHead>
-                          <TableHead>ผู้บันทึก</TableHead>
-                          <TableHead>หมายเหตุ</TableHead>
+                      <TableHeader>
+                        <TableRow className="border-b border-blue-900/40 bg-[#0a101f]/90 hover:bg-[#0a101f]/90">
+                          <TableHead className="text-[10px] font-bold tracking-wider text-slate-500 uppercase font-mono py-2">วัน-เวลา</TableHead>
+                          <TableHead className="text-[10px] font-bold tracking-wider text-slate-500 uppercase font-mono py-2">ประเภท</TableHead>
+                          <TableHead className="text-[10px] font-bold tracking-wider text-slate-500 uppercase font-mono text-right py-2">จำนวน</TableHead>
+                          <TableHead className="text-[10px] font-bold tracking-wider text-slate-500 uppercase font-mono text-right py-2">ก่อน/ใหม่</TableHead>
+                          <TableHead className="text-[10px] font-bold tracking-wider text-slate-500 uppercase font-mono py-2">ผู้บันทึก</TableHead>
+                          <TableHead className="text-[10px] font-bold tracking-wider text-slate-500 uppercase font-mono py-2">หมายเหตุ</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody className="text-xs">
                         {detailMovements.map((m) => (
-                          <TableRow key={m.id}>
-                            <TableCell className="whitespace-nowrap text-muted-foreground">
+                          <TableRow key={m.id} className="border-b border-blue-900/20 hover:bg-blue-500/5">
+                            <TableCell className="whitespace-nowrap text-slate-500 font-mono py-2">
                               {new Date(m.createdAt).toLocaleString('th-TH', {
                                 dateStyle: 'short',
                                 timeStyle: 'short',
                               })}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="py-2">
                               {m.type === 'IN' && (
-                                <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 text-[10px] px-1.5 py-0 border-emerald-200">
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                                   รับเข้า
-                                </Badge>
+                                </span>
                               )}
                               {m.type === 'OUT' && (
-                                <Badge variant="destructive" className="text-[10px] px-1.5 py-0">
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
                                   เบิกออก
-                                </Badge>
+                                </span>
                               )}
                               {m.type === 'ADJUSTMENT' && (
-                                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                                   ปรับปรุง
-                                </Badge>
+                                </span>
                               )}
                             </TableCell>
-                            <TableCell className="text-right font-semibold">
+                            <TableCell className="text-right font-semibold font-mono py-2">
                               {m.type === 'IN' ? `+${m.quantity}` : m.type === 'OUT' ? `-${m.quantity}` : m.quantity}
                             </TableCell>
-                            <TableCell className="text-right text-muted-foreground">
-                              {m.previousStock} → {m.newStock}
+                            <TableCell className="text-right font-mono text-slate-500 py-2">
+                              {m.previousStock} → <span className="text-cyan-300">{m.newStock}</span>
                             </TableCell>
-                            <TableCell>{m.user?.name || '-'}</TableCell>
-                            <TableCell className="max-w-[150px] truncate text-muted-foreground">
+                            <TableCell className="text-slate-300 py-2">{m.user?.name || '-'}</TableCell>
+                            <TableCell className="max-w-[150px] truncate text-slate-500 py-2">
                               {m.note || '-'}
                             </TableCell>
                           </TableRow>
@@ -1000,7 +1005,11 @@ function ProductsContent() {
           )}
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDetailModalOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setDetailModalOpen(false)}
+              className="border-blue-900/50 text-slate-300 hover:bg-blue-900/30 hover:text-white"
+            >
               ปิด
             </Button>
           </DialogFooter>
@@ -1009,13 +1018,13 @@ function ProductsContent() {
 
       {/* Modal 4: Delete Confirmation */}
       <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent className="sm:max-w-sm bg-[#0d1527] border border-blue-900/50 text-slate-200 shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="text-destructive flex items-center gap-2">
+            <DialogTitle className="text-red-400 flex items-center gap-2">
               <Trash2 className="h-5 w-5" />
               ยืนยันการลบสินค้า
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-slate-400">
               คุณต้องการลบสินค้า &quot;{deletingProduct?.name}&quot; ({deletingProduct?.sku}) หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้
             </DialogDescription>
           </DialogHeader>
@@ -1023,16 +1032,17 @@ function ProductsContent() {
             <Button
               variant="outline"
               onClick={() => setDeleteModalOpen(false)}
+              className="border-blue-900/50 text-slate-300 hover:bg-blue-900/30 hover:text-white"
             >
               ยกเลิก
             </Button>
-            <Button
-              variant="destructive"
+            <button
               disabled={submitting}
               onClick={handleDeleteProduct}
+              className="px-5 py-2 rounded-full font-bold text-xs uppercase tracking-wider text-white bg-gradient-to-r from-red-600 to-rose-500 shadow-[0_0_15px_rgba(239,68,68,0.3)] hover:shadow-[0_0_25px_rgba(239,68,68,0.5)] transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
             >
               {submitting ? 'กำลังลบ...' : 'ลบสินค้า'}
-            </Button>
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -1045,7 +1055,10 @@ export default function ProductsPage() {
     <Suspense
       fallback={
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          <div className="flex flex-col items-center gap-3">
+            <div className="animate-spin rounded-full h-9 w-9 border-2 border-cyan-400 border-t-transparent shadow-[0_0_20px_#00e5ff]" />
+            <span className="text-xs font-mono text-cyan-400 tracking-wider">LOADING...</span>
+          </div>
         </div>
       }
     >
