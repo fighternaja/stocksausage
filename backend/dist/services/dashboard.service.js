@@ -7,16 +7,10 @@ exports.dashboardService = exports.DashboardService = void 0;
 const prisma_1 = __importDefault(require("../utils/prisma"));
 class DashboardService {
     async getStats() {
-        const [totalProducts, totalStock, outOfStock, inventoryValue] = await Promise.all([
+        const [totalProducts, totalStock, outOfStock] = await Promise.all([
             prisma_1.default.product.count(),
             prisma_1.default.product.aggregate({ _sum: { stock: true } }),
             prisma_1.default.product.count({ where: { stock: { equals: 0 } } }),
-            prisma_1.default.product.aggregate({
-                _sum: {
-                // We need to compute price * stock, but Prisma doesn't support computed aggregations
-                // So we'll compute it manually
-                },
-            }),
         ]);
         // Get all products to compute inventory value and low stock
         const allProducts = await prisma_1.default.product.findMany({
@@ -45,14 +39,20 @@ class DashboardService {
         });
         // Group by date
         const chartData = {};
+        const toLocalDateStr = (d) => {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        };
         for (let i = 0; i <= days; i++) {
             const date = new Date(startDate);
             date.setDate(date.getDate() + i);
-            const dateStr = date.toISOString().split('T')[0];
+            const dateStr = toLocalDateStr(date);
             chartData[dateStr] = { date: dateStr, in: 0, out: 0, adjustment: 0 };
         }
         movements.forEach((m) => {
-            const dateStr = m.createdAt.toISOString().split('T')[0];
+            const dateStr = toLocalDateStr(m.createdAt);
             if (chartData[dateStr]) {
                 if (m.type === 'IN')
                     chartData[dateStr].in += m.quantity;

@@ -19,12 +19,19 @@ app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: config.cors.origin, credentials: true }));
 
 // Rate limiting
-const limiter = rateLimit({
+const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200,
+  max: 5000,
+  skip: (req) => req.path === '/api/health',
   message: { success: false, message: 'คำขอมากเกินไป กรุณาลองใหม่ภายหลัง', error: 'RATE_LIMIT' },
 });
-app.use(limiter);
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30,
+  message: { success: false, message: 'พยายามเข้าสู่ระบบบ่อยเกินไป กรุณารอ 15 นาที', error: 'LOGIN_RATE_LIMIT' },
+});
+app.use('/api', apiLimiter);
+app.use('/api/auth/login', loginLimiter);
 
 // Body parsing
 app.use(express.json({ limit: '10mb' }));

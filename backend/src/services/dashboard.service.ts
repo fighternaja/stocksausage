@@ -41,15 +41,22 @@ export class DashboardService {
     // Group by date
     const chartData: Record<string, { date: string; in: number; out: number; adjustment: number }> = {};
 
+    const toLocalDateStr = (d: Date): string => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+
     for (let i = 0; i <= days; i++) {
       const date = new Date(startDate);
       date.setDate(date.getDate() + i);
-      const dateStr = date.toISOString().split('T')[0];
+      const dateStr = toLocalDateStr(date);
       chartData[dateStr] = { date: dateStr, in: 0, out: 0, adjustment: 0 };
     }
 
     movements.forEach((m) => {
-      const dateStr = m.createdAt.toISOString().split('T')[0];
+      const dateStr = toLocalDateStr(m.createdAt);
       if (chartData[dateStr]) {
         if (m.type === 'IN') chartData[dateStr].in += m.quantity;
         else if (m.type === 'OUT') chartData[dateStr].out += m.quantity;

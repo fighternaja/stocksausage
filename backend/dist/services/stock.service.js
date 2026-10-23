@@ -7,22 +7,22 @@ exports.stockService = exports.StockService = void 0;
 const prisma_1 = __importDefault(require("../utils/prisma"));
 class StockService {
     async stockIn(productId, quantity, note, userId) {
-        const product = await prisma_1.default.product.findUnique({ where: { id: productId } });
-        if (!product) {
-            throw { status: 404, message: 'ไม่พบสินค้า', error: 'PRODUCT_NOT_FOUND' };
-        }
         if (quantity <= 0) {
             throw { status: 400, message: 'จำนวนต้องมากกว่า 0', error: 'INVALID_QUANTITY' };
         }
-        const previousStock = product.stock;
-        const newStock = previousStock + quantity;
-        const [updatedProduct, movement] = await prisma_1.default.$transaction([
-            prisma_1.default.product.update({
+        const [updatedProduct, movement] = await prisma_1.default.$transaction(async (tx) => {
+            const product = await tx.product.findUnique({ where: { id: productId } });
+            if (!product) {
+                throw { status: 404, message: 'ไม่พบสินค้า', error: 'PRODUCT_NOT_FOUND' };
+            }
+            const previousStock = product.stock;
+            const newStock = previousStock + quantity;
+            const updated = await tx.product.update({
                 where: { id: productId },
-                data: { stock: newStock },
+                data: { stock: { increment: quantity } },
                 include: { category: { select: { id: true, name: true } } },
-            }),
-            prisma_1.default.stockMovement.create({
+            });
+            const mov = await tx.stockMovement.create({
                 data: {
                     productId,
                     userId,
@@ -36,34 +36,35 @@ class StockService {
                     product: { select: { id: true, name: true, sku: true } },
                     user: { select: { id: true, name: true } },
                 },
-            }),
-        ]);
+            });
+            return [updated, mov];
+        });
         return { product: updatedProduct, movement };
     }
     async stockOut(productId, quantity, note, userId) {
-        const product = await prisma_1.default.product.findUnique({ where: { id: productId } });
-        if (!product) {
-            throw { status: 404, message: 'ไม่พบสินค้า', error: 'PRODUCT_NOT_FOUND' };
-        }
         if (quantity <= 0) {
             throw { status: 400, message: 'จำนวนต้องมากกว่า 0', error: 'INVALID_QUANTITY' };
         }
-        if (product.stock < quantity) {
-            throw {
-                status: 400,
-                message: `สินค้าในสต๊อกไม่เพียงพอ (คงเหลือ ${product.stock} ${product.unit})`,
-                error: 'INSUFFICIENT_STOCK',
-            };
-        }
-        const previousStock = product.stock;
-        const newStock = previousStock - quantity;
-        const [updatedProduct, movement] = await prisma_1.default.$transaction([
-            prisma_1.default.product.update({
+        const [updatedProduct, movement] = await prisma_1.default.$transaction(async (tx) => {
+            const product = await tx.product.findUnique({ where: { id: productId } });
+            if (!product) {
+                throw { status: 404, message: 'ไม่พบสินค้า', error: 'PRODUCT_NOT_FOUND' };
+            }
+            if (product.stock < quantity) {
+                throw {
+                    status: 400,
+                    message: `สินค้าในสต๊อกไม่เพียงพอ (คงเหลือ ${product.stock} ${product.unit})`,
+                    error: 'INSUFFICIENT_STOCK',
+                };
+            }
+            const previousStock = product.stock;
+            const newStock = previousStock - quantity;
+            const updated = await tx.product.update({
                 where: { id: productId },
-                data: { stock: newStock },
+                data: { stock: { decrement: quantity } },
                 include: { category: { select: { id: true, name: true } } },
-            }),
-            prisma_1.default.stockMovement.create({
+            });
+            const mov = await tx.stockMovement.create({
                 data: {
                     productId,
                     userId,
@@ -77,27 +78,28 @@ class StockService {
                     product: { select: { id: true, name: true, sku: true } },
                     user: { select: { id: true, name: true } },
                 },
-            }),
-        ]);
+            });
+            return [updated, mov];
+        });
         return { product: updatedProduct, movement };
     }
     async adjust(productId, quantity, note, userId) {
-        const product = await prisma_1.default.product.findUnique({ where: { id: productId } });
-        if (!product) {
-            throw { status: 404, message: 'ไม่พบสินค้า', error: 'PRODUCT_NOT_FOUND' };
-        }
         if (quantity < 0) {
             throw { status: 400, message: 'จำนวนไม่สามารถติดลบได้', error: 'INVALID_QUANTITY' };
         }
-        const previousStock = product.stock;
-        const newStock = quantity;
-        const [updatedProduct, movement] = await prisma_1.default.$transaction([
-            prisma_1.default.product.update({
+        const [updatedProduct, movement] = await prisma_1.default.$transaction(async (tx) => {
+            const product = await tx.product.findUnique({ where: { id: productId } });
+            if (!product) {
+                throw { status: 404, message: 'ไม่พบสินค้า', error: 'PRODUCT_NOT_FOUND' };
+            }
+            const previousStock = product.stock;
+            const newStock = quantity;
+            const updated = await tx.product.update({
                 where: { id: productId },
                 data: { stock: newStock },
                 include: { category: { select: { id: true, name: true } } },
-            }),
-            prisma_1.default.stockMovement.create({
+            });
+            const mov = await tx.stockMovement.create({
                 data: {
                     productId,
                     userId,
@@ -111,8 +113,9 @@ class StockService {
                     product: { select: { id: true, name: true, sku: true } },
                     user: { select: { id: true, name: true } },
                 },
-            }),
-        ]);
+            });
+            return [updated, mov];
+        });
         return { product: updatedProduct, movement };
     }
     async getMovements(filters) {
